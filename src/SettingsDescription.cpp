@@ -12,7 +12,7 @@ po::options_description description(Settings &settings)
   desc.add_options()
       ("address,a", po::value<std::string>(&settings.address)->default_value("127.0.0.1"),
        "Bind address")
-      ("port,p", po::value<uint16_t>(&settings.port)->default_value(10101), "Port");
+      ("port,p", po::value<uint16_t>(&settings.port)->default_value(8443), "Port");
   // clang-format on
 
   return desc;

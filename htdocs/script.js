@@ -1,5 +1,7 @@
 // On the assumption that the canvas position does not move after load
 var ws = null;
+var sessionId = null;
+var incoming = new Map();
 
 function openSession() {
     if (ws != null && ws.readyState == 1) {
@@ -8,11 +10,20 @@ function openSession() {
     }
 
     ws = new WebSocket("ws://" + location.host + ":8443");
-    // ws.binaryType = "arraybuffer";
 
     ws.onmessage = message => {
         var data = JSON.parse(message.data);
-        console.log(data);
+        // Grab session Id from initial message (without position info)
+        if (data.x == null) {
+            sessionId = data.id;
+        } else if (data.remove != null) {
+            incoming.delete(data.id);
+        } else {
+            if (incoming.get(data.id)) {
+                incoming.delete(data.id);
+            }
+            incoming.set(data.id,data);
+        }
     }
 
     // Minimal information available on the status
@@ -52,6 +63,7 @@ var state = {
 }
 var lastUpdate = 0;
 var lastPos = {
+    id: null,
     x: 0,
     y: 0
 }
@@ -114,11 +126,16 @@ function draw() {
     ctx.clearRect(0, 0, width, height);
 
     //redraw
+    ctx.fillStyle = "cyan";
     ctx.fillRect(state.x - 5, state.y - 5, 10, 10);
-    ctx.drawImage(cage, state.x, state.y);
+    // ctx.drawImage(cage, state.x, state.y);
 
     // Draw others
     // loop through array of other players: color, x, y
+    ctx.fillStyle = "red";
+    for (let [key, value] of incoming) {
+        ctx.fillRect(value.x - 5, value.y - 5, 10, 10);
+    }
 }
 
 function loop(timestamp) {
@@ -128,6 +145,7 @@ function loop(timestamp) {
     //console.log(state);
     draw();
     var pos = {
+        id: sessionId,
         x: state.x,
         y: state.y
     }
@@ -151,8 +169,6 @@ function initialize() {
     height = canvas.height;
     state.x = width / 2.;
     state.y = height / 2.;
-
-    ctx.fillStyle = "red";
     
     status("initialized")
 }

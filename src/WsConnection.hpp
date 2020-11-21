@@ -14,6 +14,7 @@ public:
     std::shared_ptr<SharedState> state);
   ~WsConnection();
   void start();
+  void hello(); // sends the session number to use as identity
   void read();
   void write(const std::string &data);
   void consume(const std::size_t bytes);

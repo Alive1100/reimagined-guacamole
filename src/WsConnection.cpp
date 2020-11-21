@@ -26,11 +26,19 @@ void WsConnection::start()
   // TODO - "correct/better?" use of beast's buffers/front handlers
   ws_.async_accept([connection = shared_from_this()](const boost::system::error_code& ec) {
     if (!ec) {
+      connection->hello();
       connection->read();
     } else {
       spdlog::error("Websocket handshake failed: {}", ec.message());
     }
   });
+}
+
+void WsConnection::hello()
+{
+  std::stringstream ss;
+  ss << "{ \"id\": \"" << state_->getSessionNumber(this) << "\" }";
+  write(ss.str());
 }
 
 void WsConnection::read()
