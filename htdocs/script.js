@@ -68,6 +68,9 @@ var lastPos = {
     y: 0
 }
 var cage = null;
+var trav = null;
+var avatar = null;
+var enemy = null;
 
 var keyMap = {
     68: 'right',
@@ -127,14 +130,15 @@ function draw() {
 
     //redraw
     ctx.fillStyle = "cyan";
-    ctx.fillRect(state.x - 5, state.y - 5, 10, 10);
-    // ctx.drawImage(cage, state.x, state.y);
+    //ctx.fillRect(state.x - 5, state.y - 5, 10, 10);
+    ctx.drawImage(avatar, state.x - (avatar.width / 2.), state.y - (avatar.height / 2.));
 
     // Draw others
     // loop through array of other players: color, x, y
     ctx.fillStyle = "red";
     for (let [key, value] of incoming) {
-        ctx.fillRect(value.x - 5, value.y - 5, 10, 10);
+        //ctx.fillRect(value.x - 5, value.y - 5, 10, 10);
+	ctx.drawImage(enemy, value.x - (enemy.width / 2.), value.y - (enemy.height / 2.));
     }
 }
 
@@ -160,6 +164,9 @@ function loop(timestamp) {
 
 function initialize() {
     cage = document.getElementById("cage");
+    trav = document.getElementById("trav");
+    avatar = trav;
+    enemy = cage;
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
     
@@ -171,6 +178,16 @@ function initialize() {
     state.y = height / 2.;
     
     status("initialized")
+}
+
+function faceOff() {
+    if (avatar == cage) {
+        avatar = trav;
+	enemy = cage;
+    } else {
+	    avatar = cage;
+	    enemy = trav;
+    }
 }
 
 function start() {
