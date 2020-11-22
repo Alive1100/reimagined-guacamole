@@ -5,11 +5,26 @@
 WsAcceptor::WsAcceptor(
         std::shared_ptr<boost::asio::io_context> ioContext,
         boost::asio::ip::tcp::endpoint endpoint,
+        const Settings &settings,
         std::shared_ptr<SharedState> state)
     : acceptor_(*ioContext),
       endpoint_(endpoint),
+      context_(boost::asio::ssl::context::sslv23),
       state_(state)
 {
+  context_.set_options(
+    boost::asio::ssl::context::default_workarounds
+    | boost::asio::ssl::context::no_sslv2
+    | boost::asio::ssl::context::single_dh_use);
+  context_.set_password_callback(std::bind(&WsAcceptor::getPassword, this));
+  context_.use_certificate_chain_file(settings.cert);
+  context_.use_private_key_file(settings.key, boost::asio::ssl::context::pem);
+  context_.use_tmp_dh_file(settings.dhparams);
+}
+
+std::string WsAcceptor::getPassword() const
+{
+  return "test";
 }
 
 void WsAcceptor::start()
@@ -66,6 +81,6 @@ void WsAcceptor::accept()
 
 void WsAcceptor::doAccept(boost::asio::ip::tcp::socket &&socket)
 {
-  auto connection = std::make_shared<WsConnection>(std::move(socket), state_);
-  connection->start();
+  auto connection = std::make_shared<WsConnection>(std::move(socket), context_, state_);
+  connection->startTls();
 }

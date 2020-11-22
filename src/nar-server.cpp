@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
   auto acceptor = std::make_shared<WsAcceptor>(
       ioContext,
       boost::asio::ip::tcp::endpoint(address, settings.port),
+      settings,
       sharedState);
 
   acceptor->start();

@@ -9,7 +9,7 @@ function openSession() {
         return;
     }
 
-    ws = new WebSocket("ws://" + location.host + ":8443");
+    ws = new WebSocket("wss://" + location.host + ":8443");
 
     ws.onmessage = message => {
         var data = JSON.parse(message.data);

@@ -4,6 +4,7 @@ find_package(
   REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 # The function protobuf_generate_cpp fails due to protobuf::protoc not being set correctly
 # Workaround with a custom command!
@@ -34,6 +35,8 @@ target_link_libraries(
 	Boost::system
 	${CMAKE_THREAD_LIBS_INIT}
 	nar-messages
+	OpenSSL::SSL
+	OpenSSL::Crypto
 	spdlog::spdlog
 )
 
